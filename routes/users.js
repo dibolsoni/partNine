@@ -13,8 +13,6 @@ const Course = require('../models').Course;
 const User = require('../models').User;
 
 
-//app modules
-
 
 
 // Route that returns the current authenticated user.

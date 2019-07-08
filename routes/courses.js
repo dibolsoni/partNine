@@ -117,7 +117,7 @@ router.put('/:id',  authenticateUser,
         if (course) {
           if (course.userId === user.id) {
             course.update(course_updated);
-            res.status(201).end();
+            res.status(204).end();
           } else {
             const err = new Error(`you must be the owner of the course to edit it`)
             err.status = 403;
@@ -143,7 +143,7 @@ router.delete('/:id',  authenticateUser, (req, res, next) => {
       if (course) {
         if (course.userId === user.id) {
           course.destroy();
-          res.status(201).end();
+          res.status(204).end();
         } else {
           const err = new Error(`you must be the owner of the course delete it`)
           err.status = 403;
