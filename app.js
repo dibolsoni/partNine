@@ -2,11 +2,15 @@
 
 // load default modules
 const express = require('express');
-const auth = require('basic-auth');
 
 const morgan = require('morgan');
 let bodyParser = require('body-parser');
 
+// db
+const models = require("./models");
+const sequelize = models.sequelize;
+
+//routes
 const routes = require('./routes/');
 
 
@@ -25,7 +29,6 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// TODO setup your api routes here
 
 // Add routes.
 app.use('/api', routes);
@@ -46,8 +49,8 @@ app.use((err, req, res, next) => {
   }
 
   res.status(err.status || 500).json({
-    message: err.message,
-    error: err.stack,
+    "code": err.status,
+    message: err.message
   });
 });
 

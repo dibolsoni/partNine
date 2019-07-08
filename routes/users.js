@@ -1,104 +1,31 @@
+'use strict';
+
 const express = require('express');
 const router = express.Router();
-const atob = require('atob');
+
+const { check, validationResult } = require('express-validator');
+const authenticateUser = require('./authenticator')
+const bcryptjs = require('bcryptjs');
+
 
 // const Op = Sequelize.Op;
 const Course = require('../models').Course;
 const User = require('../models').User;
 
-const _users = [{username: 'a'}]
 
 //app modules
-const { check, validationResult } = require('express-validator');
-const bcryptjs = require('bcryptjs');
-const auth = require('basic-auth');
-
-
-
-
-const getCredentials = (req) => {
-  let credentials = null;
-
-  const authorizationHeaderValue = req.get('Authorization');
-
-  if (authorizationHeaderValue && authorizationHeaderValue.startsWith('Basic ')) {
-    const base64Credentials = authorizationHeaderValue.slice(6);
-    const stringCredentials = atob(base64Credentials);
-    const partsCredentials = stringCredentials.split(':');
-
-    credentials = {
-      name: partsCredentials[0],
-      pass: partsCredentials[1],
-    };
-  }
-
-  return credentials;
-};
-
-/**
- * Middleware to authenticate the request using Basic Authentication.
- * @param {Request} req - The Express Request object.
- * @param {Response} res - The Express Response object.
- * @param {Function} next - The function to call to pass execution to the next middleware.
- */
-const authenticateUser = (req, res, next) => {
-    // router.currentUser = null;
-    let message = null;
-    console.log('Authenticating user...');
-    // Get the user's credentials from the Authorization header.
-    const credentials = getCredentials(req);
-
-  
-    if (credentials) {
-      // Look for a user whose `username` matches the credentials `name` property.
-      User.findOne({
-        where: {
-          emailAddress: credentials.name
-        } 
-      })
-        .then(user => {
-          if (user) {
-            user.fullname = `${user.firstName} ${user.lastName}`;
-            const authenticated = bcryptjs
-              .compareSync(credentials.pass, user.password);
-            if (authenticated) {
-              // Store the user on the Request object.
-              req.currentUser = user;
-              console.log('req', req.currentUser)
-              console.log(`Authentication successful for username: ${user.fullname}`);
-              next();
-
-            } else {
-              message = `Authentication failure for username: ${user.name}`;
-            }
-          } else {
-            message = `User not found for username: ${credentials.name}`;
-          }
-        })
-
-    } else {
-      message = 'Auth header not found';
-    }
-    console.log('Authenticating: finished');
-  
-    if (message) {
-      console.warn(message);
-      res.status(401).json({ message: 'Access Denied' });
-    } else {
-      next();
-    }
-};
 
 
 
 // Route that returns the current authenticated user.
-router.get('/', authenticateUser, (req, res) => {
-  const user = req.currentUser;
-  console.log("user", user);
+router.get('/', authenticateUser, (req, res, next) => {
+  const user = req.body.currentUser;
   res.json({
-    name: user.firstName,
-    username: user.emailAddress,
-  });
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    username: user.emailAddress
+  })
+  res.end();
 });
 
 
@@ -178,5 +105,14 @@ router.post('/',
         });
 });
   
+
+router.get('/list',  authenticateUser, (req, res, next) => {
+  User.findAll().then(function(users){
+    res.status(200).json({users: users, body: JSON.stringify(req.body)})
+  }).catch(function(err){
+    err.status = 500;
+    next(err);
+   });
+})
 
 module.exports = router;
