@@ -28,7 +28,7 @@ router.get('/:id',  authenticateUser, (req, res, next) => {
    });
 })
 
-router.post('/',
+router.post('/', authenticateUser,
     [
         check('title')
         .exists({ checkNull: true, checkFalsy: true })
@@ -86,6 +86,7 @@ router.put('/:id',  authenticateUser,
     .withMessage('Please provide a value for "description"'),
   ], 
   (req, res, next) => {
+    const user = req.body.currentUser;
     // Attempt to get the validation result from the Request object.
     const errors = validationResult(req);
 
@@ -102,8 +103,14 @@ router.put('/:id',  authenticateUser,
     Course.findOne({where: [{id: course_id }], include: [{model:User}], order: [["title", "ASC"]]})
       .then((course) => {
         if (course) {
-          course.update(course_updated);
-          res.status(201).end();
+          if (course.userId === user.id) {
+            course.update(course_updated);
+            res.status(201).end();
+          } else {
+            const err = new Error(`you must be the owner of the course to edit it`)
+            err.status = 403;
+            next(err);          
+          }
         } else {
           const err = new Error('course not found')
           err.status = 404;
@@ -118,11 +125,18 @@ router.put('/:id',  authenticateUser,
 
 router.delete('/:id',  authenticateUser, (req, res, next) => {
   const course_id = req.params.id;
+  const user = req.body.currentUser;
   Course.findByPk(course_id)
     .then(course => {
       if (course) {
-        course.destroy();
-        res.status(201).end();
+        if (course.userId === user.id) {
+          course.destroy();
+          res.status(201).end();
+        } else {
+          const err = new Error(`you must be the owner of the course delete it`)
+          err.status = 403;
+          next(err);          
+        }
       } else {
         const err = new Error('course not found')
         err.status = 404;

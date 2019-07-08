@@ -28,29 +28,7 @@ router.get('/', authenticateUser, (req, res, next) => {
   res.end();
 });
 
-
-router.post('/new', (req, res, next) => {
-  const user = req.body
-  // hash the password if provided
-  if (user.password) {
-    user.password = bcryptjs.hashSync(user.password);
-  }
-  
-  User.create(user).then((u) => {
-    console.log('user', u)
-    res.location('/');
-    res.status(201).end()
-    
-  }).catch((err) => {
-    console.log(err)
-    err.status = 400;
-    return next(err);
-  })   
-})
-
-
-  // Route that creates a new user.
-
+// Route that creates a new user.
 router.post('/',
     [
         check('firstName')
@@ -104,15 +82,5 @@ router.post('/',
           };
         });
 });
-  
-
-router.get('/list',  authenticateUser, (req, res, next) => {
-  User.findAll().then(function(users){
-    res.status(200).json({users: users, body: JSON.stringify(req.body)})
-  }).catch(function(err){
-    err.status = 500;
-    next(err);
-   });
-})
 
 module.exports = router;
