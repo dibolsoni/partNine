@@ -9,23 +9,40 @@ const Course = require('../models').Course;
 const User = require('../models').User;
 
 router.get('/',  authenticateUser, (req, res, next) => {
-    Course.findAll({include: [{model:User}], order: [["title", "ASC"]]})
+    const user = req.body.currentUser;
+    
+    Course.findAll({
+      attributes:{ exclude: ['createdAt', 'updatedAt'] },
+      include: [{
+        model:User,
+        attributes: {exclude: ['password', 'createdAt', 'updatedAt']}
+      }],
+      order: [["title", "ASC"]]
+    })
     .then(function(courses){
-        res.status(200).json({courses: courses, body: JSON.stringify(req.body)})
+        res.status(200).json({courses: courses, user: user})
       }).catch(function(err){
           err.status = 500;
           next(err);
       });
 })
 
-router.get('/:id',  authenticateUser, (req, res, next) => {
+router.get('/:id',  (req, res, next) => {
   const course_id = req.params.id;
-  Course.findOne({where: [{id: course_id }], include: [{model:User}], order: [["title", "ASC"]]}).then(function(courses){
-    res.status(200).json({courses: courses, body: JSON.stringify(req.body)})
-  }).catch(function(err){
-      err.status = 500;
-      next(err);
-   });
+  Course.findOne({
+    attributes:{ exclude: ['createdAt', 'updatedAt'] },
+      include: [{
+        model:User,
+        attributes: {exclude: ['password', 'createdAt', 'updatedAt']}
+    }],
+    where: [{id: course_id }]
+  })
+    .then(function(courses){
+      res.status(200).json({courses: courses, user: req.body.currentUser})
+    }).catch(function(err){
+        err.status = 500;
+        next(err);
+    });
 })
 
 router.post('/', authenticateUser,
@@ -37,11 +54,6 @@ router.post('/', authenticateUser,
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please provide a value for "description"'),
         check('estimatedTime')
-        .exists({ checkNull: false, checkFalsy: true })
-        .withMessage('Please provide a value for "estimated time"'),
-        check('materialsNeeded')
-        .exists({ checkNull: false, checkFalsy: true })
-        .withMessage('Please provide a value for "materials needed"'),
     ], 
     (req, res, next) => {
 

@@ -23,6 +23,7 @@ const User = require('../models').User;
       if (credentials) {
         // Look for a user whose `username` matches the credentials `name` property.
         User.findOne({
+          attributes:{ exclude: ['createdAt', 'updatedAt'] },
           where: {
             emailAddress: credentials.name
           } 
@@ -32,9 +33,9 @@ const User = require('../models').User;
               const authenticated = bcryptjs
                 .compareSync(credentials.pass, user.password);
               if (authenticated) {
-                // Store the user on the Request object.
+                // Cleaning the password to store the user on the Request object.
+                user.password = 'nowApassword';
                 req.body.currentUser = user;
-                // console.log('req', req.currentUser)
                 console.log(`Authentication successful for username: ${user.firstName}`);
                 next();
   

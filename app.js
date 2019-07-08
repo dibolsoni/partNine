@@ -7,8 +7,7 @@ const morgan = require('morgan');
 let bodyParser = require('body-parser');
 
 // db
-const models = require("./models");
-const sequelize = models.sequelize;
+const db = require("./models");
 
 //routes
 const routes = require('./routes/');
@@ -33,6 +32,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Add routes.
 app.use('/api', routes);
 
+
+db.sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+});
 
 // send 404 if no other route matched
 app.use((req, res) => {
