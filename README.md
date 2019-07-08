@@ -1,4 +1,7 @@
 # partNine - REST API from Treehouse
-1 - download files
-2 - install dependecies -> npm install
-3 - start project -> npm start
+<b>Steps:</b> <br />
+@ 1 - download files <br />
+@ 2 - install dependecies -> npm install <br />
+@ 3 - install db -> npm run seed <br />
+@ 4 - start project -> npm start <br />
+
