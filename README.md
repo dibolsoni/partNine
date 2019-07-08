@@ -1,4 +1,6 @@
 # partNine - REST API from Treehouse
+This API provides a way for users to administer a school database containing information about courses: users can interact with the database by retrieving a list of courses, as well as adding, updating and deleting courses in the database.
+
 <h3>INSTALL</h3>
 <b>Steps:</b> <br />
 @ 1 - download files <br />
