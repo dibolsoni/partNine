@@ -67,8 +67,7 @@ router.post('/',
     // Get the user from the request body.
     User.create(user)
         .then(() => {
-          res.location('/');
-          res.status(201).end()
+          res.status(201).location('/').end()
         }).catch(function(err){
           if (err.name === 'SequelizeUniqueConstraintError') {
             err.status = 400;

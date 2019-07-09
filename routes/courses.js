@@ -73,9 +73,8 @@ router.post('/', authenticateUser,
 
     // Get the course from the request body.
     Course.create(course)
-        .then(() => {
-          res.location('/');
-          res.status(201).end()
+        .then((new_course) => {
+          res.status(201).location(`/api/courses/${new_course.id}`).end()
         }).catch(function(err){
           if (err.name === 'SequelizeUniqueConstraintError') {
             err.status = 400;
@@ -112,7 +111,7 @@ router.put('/:id',  authenticateUser,
     }
     const course_id = req.params.id;
     const course_updated = req.body;
-    Course.findOne({where: [{id: course_id }], include: [{model:User}], order: [["title", "ASC"]]})
+    Course.findOne({where: [{id: course_id }], include: [{model:User}]})
       .then((course) => {
         if (course) {
           if (course.userId === user.id) {
