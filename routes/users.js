@@ -64,7 +64,7 @@ router.post('/',
       console.log(user.password)
     }
 
-    // Get the user from the request body.
+    // Creates user
     User.create(user)
         .then(() => {
           res.status(201).location('/').end()
