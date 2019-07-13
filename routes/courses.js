@@ -8,7 +8,7 @@ const authenticateUser = require('./authenticator');
 const Course = require('../models').Course;
 const User = require('../models').User;
 
-router.get('/',  authenticateUser, (req, res, next) => {
+router.get('/', (req, res, next) => {
     const user = req.body.currentUser;
     
     Course.findAll({

@@ -59,9 +59,7 @@ router.post('/',
     const user = req.body
     // hash the password if provided
     if (user.password) {
-      console.log(user.password)
       user.password = bcryptjs.hashSync(user.password);
-      console.log(user.password)
     }
 
     // Creates user
